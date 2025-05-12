@@ -40,7 +40,13 @@ const aiDifficultyMenu = document.getElementById('aiDifficultyMenu');
 const easyAiBtn = document.getElementById('easyAiBtn');
 const hardAiBtn = document.getElementById('hardAiBtn');
 const modeSwitch = document.getElementById('modeSwitch');
+const normalBtn = document.getElementById('normalAiBtn');
 
+normalBtn.addEventListener('click', () => {
+    gameMode = 'AI';
+    difficulty = 'normal';
+    startGame();
+});
 
 // ====== Mode Switch: Dark/Light Theme ======
 modeSwitch.addEventListener('change', function() {
@@ -105,7 +111,7 @@ hardAiBtn.addEventListener('click', () => {
 
 // Start the game with player names or AI mode
 function startGame() {
-    if(gameMode == 'VS'){
+    if(gameMode === 'VS'){
         const name1 = player1Input.value.toUpperCase();
         const name2 = player2Input.value.toUpperCase();
   
@@ -134,7 +140,7 @@ function startGame() {
         document.getElementById('scoreDraw').textContent = `Draws: 0`;
         nameForm.style.display = 'none';
         gameBoard.style.display = 'flex';
-    } else if(gameMode == 'AI'){
+    } else if(gameMode === 'AI'){
         startMenu.style.display = 'none';
         aiDifficultyMenu.style.display = 'none';
         gameBoard.style.display = 'flex';
@@ -304,7 +310,45 @@ function aiMove() {
             checkGameOver();
         }
 
-    } else if (difficulty === 'hard') {
+    } else if (difficulty === 'normal') {
+        // Create a simplified copy of the current board
+        let board = [];
+        cells.forEach(cell => {
+            board.push(cell.textContent || '');
+        });
+        
+        // Step 1: Try to block the player from winning
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === '') {
+                board[i] = 'X'; // simulate player move
+                if (checkVirtualWinner(board) === 'X') {
+                    cells[i].textContent = 'O'; // AI blocks with O
+                    checkGameOver();
+                    return;
+                }
+                board[i] = ''; // undo simulation
+            }
+        }
+    
+        // Step 2: Take the center if it's free
+        if (!cells[4].textContent) {
+            cells[4].textContent = 'O';
+            checkGameOver();
+            return;
+        }
+    
+        // Step 3: Pick a random empty cell
+        let emptyCells = [];
+        cells.forEach((cell, index) => {
+            if (!cell.textContent) emptyCells.push(index);
+        });
+    
+        if (emptyCells.length > 0) {
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            cells[emptyCells[randomIndex]].textContent = 'O';
+            checkGameOver();
+        }
+    }else if (difficulty === 'hard') {
         // Create a simplified representation of the board
         let board = [];
         cells.forEach(cell => {
